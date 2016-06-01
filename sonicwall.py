@@ -1,6 +1,7 @@
 #!/usr/bin/python
 """"
 sonicwall.py - Copyright (c) 2013 Will Smith
+	     - Modified by whoisunkn0wn 01062016
 
 	Backup Sonicwall Configs to an FTP Server. 
 
@@ -22,42 +23,117 @@ DEALINGS IN THE SOFTWARE.
 		
 """
 
-import pexpect, time
+#!/usr/bin/python
+#-*- coding: utf-8 -*-
 
-FTP_SERVER = '10.xxx.xxx.xxx'							#FTP Server Address
-FTP_USERNAME = 'myftpusername'							#FTP Username
-FTP_PASSWORD = 'mystrongpassword'						#FTP Password
+#Import libs and modules
+import pexpect, time, csv
+
+#Declare remotehost & FTP credentials
+FTP_SERVER = '0.0.0.0'		#FTP Server Address
+FTP_USERNAME = 'ftp_usr'		#FTP Username
+FTP_PASSWORD = 'ftp_pass'	#FTP Password
+
+#Define list & tuple variables
+SONICWALLS = []
+BLOCK = ()
+
+#Read row content of in_file - append to list in tuple format
+with open("/home/usrnme/Documents/sonicwall_hosts00.csv") as in_file:
+	csv_reader = csv.reader(in_file)
+	for row in csv_reader:
+		SONICWALLS.append(tuple(row))
+
+#Insert list data into tuple pre-formatted from the integer 0: (infinite)
+BLOCK = (SONICWALLS[0:])
 
 
-#('192.168.168.168','username', 'password', 'host-description', 'System Name')
+#Define SSH functions
+def connection00(host, username, password, desc, sysname, firmware):
 
-#Sonicwalls to Backup
-SONICWALLS = (
-	('192.168.168.168','admin', 'password', 'TEST-FW', 'NSA 2400'),
-	('192.168.168.168','admin', 'password', 'TEST-FW-2', 'NSA 2400'),
-)
-
-def connection(host, username, password, desc, sysname):
-
-	 sshc = pexpect.spawn('ssh ' + host)
-	 sshc.expect('User:')
+	 sshc = pexpect.spawn('ssh ' + username + '@' + host)
 	 sshc.sendline(username)
-	 sshc.expect('Password:')
+	 sshc.expect('assword:')
 	 sshc.sendline(password)
-	 sshc.expect(sysname + '>')
+	 sshc.expect('>')
 	 print 'Logged in...'
-	 dts = time.strftime('%Y%m%d%H%M%S')	
-	 sshc.sendline('export preferences ftp ' + FTP_SERVER + ' ' + FTP_USERNAME + ' ' + FTP_PASSWORD + ' prefs_'+ desc +'_'+ dts +'.exp')
-	 print 'config dumped & copied...'
-	 sshc.expect(sysname + '>')
+	 sshc.sendline('export preferences ftp ' + FTP_SERVER + ' ' + FTP_USERNAME + ' ' + FTP_PASSWORD + ' ' + desc + '.exp')	 
+	 sshc.sendline('export current-config sonicos ftp ftp://' + FTP_USERNAME +':' + FTP_PASSWORD +'@' +FTP_SERVER + '/' + desc +'.exp')
+   	 print 'config dumped & copied...'
+	 sshc.expect('>', timeout=120)
 	 sshc.sendline('exit')
 	 print 'Exiting...'
 	 sshc.close()
 	 print 'Connection closed...'
 	 time.sleep(2)
 
+def connection01(host, username, password, desc, sysname, firmware):
+
+	 sshc = pexpect.spawn('ssh ' + username + '@' + host)
+	 sshc.expect('assword:')
+	 sshc.sendline(password)
+	 sshc.expect('>')
+	 print 'Logged in...'
+	 sshc.sendline('export preferences ftp ' + FTP_SERVER + ' ' + FTP_USERNAME + ' ' + FTP_PASSWORD + ' ' + desc + '.exp')	 
+	 sshc.sendline('export current-config sonicos ftp ftp://' + FTP_USERNAME +':' + FTP_PASSWORD +'@' +FTP_SERVER + '/' + desc +'.exp')
+   	 print 'config dumped & copied...'
+	 sshc.expect('>', timeout=120)
+	 sshc.sendline('exit')
+	 print 'Exiting...'
+	 sshc.close()
+	 print 'Connection closed...'
+	 time.sleep(2)
+
+def connection02(host, username, password, desc, sysname, firmware):
+
+	sshc = pexpect.spawn('ssh ' + username + '@' + host)
+	sshc.expect('assword:')
+	sshc.sendline(password)
+	sshc.expect('>')
+	print 'Logged in...'
+	sshc.sendline('export preferences ftp ' + FTP_SERVER + ' ' + FTP_USERNAME + ' ' + FTP_PASSWORD + ' ' + desc + '.exp')
+	sshc.sendline('export current-config sonicos ftp ftp://' + FTP_USERNAME +':' + FTP_PASSWORD +'@' +FTP_SERVER + '/' + desc +'.exp')
+	print 'config dumped & copied...'
+	sshc.expect('>', timeout=120)
+	sshc.sendline('exit')
+	print 'Exiting...'
+	sshc.close()
+	print 'Connection closed...'
+	time.sleep(2)
+
+def connection03(host, username, password, desc, sysname, firmware):
+
+	sshc = pexpect.spawn('ssh ' + username + '@' + host)
+	sshc.expect('assword:')
+	sshc.sendline(password)
+	sshc.expect('>')
+	print 'Logged in...'
+	sshc.sendline('export preferences ftp ' + FTP_SERVER + ' ' + FTP_USERNAME + ' ' + FTP_PASSWORD + ' ' + desc + '.exp')
+	sshc.sendline('export current-config sonicos ftp ftp://' + FTP_USERNAME +':' + FTP_PASSWORD +'@' +FTP_SERVER + '/' + desc +'.exp')
+	print 'config dumped & copied...'
+	sshc.expect('>', timeout=120)
+	sshc.sendline('exit')
+	print 'Exiting...'
+	sshc.close()
+	print 'Connection closed...'
+	time.sleep(2)
+
+
 #For every Sonicwall in the tuple at the top of the script, run the backup method.
-for i in range(0,len(SONICWALLS)):
-	print 'backing up ' + SONICWALLS[i][3]
-	connection(SONICWALLS[i][0], SONICWALLS[i][1],SONICWALLS[i][2],SONICWALLS[i][3],SONICWALLS[i][4])
-	print 'done backing up ' + SONICWALLS[i][3]
+for i in range(0,len(BLOCK)):
+	if "2010" in BLOCK[i][5]:
+		print 'backing up ' + BLOCK[i][3]
+		connection00(BLOCK[i][0], BLOCK[i][1],BLOCK[i][2],BLOCK[i][3],BLOCK[i][4],BLOCK[i][5])
+		print 'backup dumped for ' + BLOCK[i][3]
+	elif "2012" in BLOCK[i][5]:
+		print 'backing up ' + BLOCK[i][3]
+		connection01(BLOCK[i][0], BLOCK[i][1],BLOCK[i][2],BLOCK[i][3],BLOCK[i][4],BLOCK[i][5])
+		print 'backup dumped for ' + BLOCK[i][3]
+	elif "2015" in BLOCK[i][5]:
+		print 'backing up ' + BLOCK[i][3]
+		connection02(BLOCK[i][0], BLOCK[i][1],BLOCK[i][2],BLOCK[i][3],BLOCK[i][4],BLOCK[i][5])
+		print 'backup dumped for ' + BLOCK[i][3]
+	elif "2016" in BLOCK[i][5]:
+		print 'backing up ' + BLOCK[i][3]
+		connection03(BLOCK[i][0], BLOCK[i][1],BLOCK[i][2],BLOCK[i][3],BLOCK[i][4],BLOCK[i][5])
+		print 'backup dumped for ' + BLOCK[i][3]
