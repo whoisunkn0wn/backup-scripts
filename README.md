@@ -1,12 +1,9 @@
 backup-scripts
 ==============
 
-Backup Scripts - A collection of useful backup scripts that will backup network infrastructure items such as:
+Backup Scripts - A collection of useful backup scripts that will backup network infrastructure items starting with:
 
     * Sonicwall Firewalls
-    * HP Procurve Switches (scp support needed)
-    * Bluecoat Packetshapers
-    * Vyatta Routers
     
 Configuration
 --------------
@@ -23,14 +20,18 @@ The filename for the backup is:
 Where [description] is the description you assign in the appliance declaration, and [datetimetamp] is the
 timestamp in the format yyyymmddhhmmss.
 
-#### Defining appliances:
 
-      SONICWALLS = (
-      ('192.168.168.168','admin', 'password', 'TEST-FW', 'NSA 2400'),
-	  ('192.168.168.168','admin', 'password', 'TEST-FW-2', 'NSA 2400'),
-      )
+#### Defining appliances within your csv target file:
+
+	0.0.0.0,admin,pass,client_gateway,host_name,2016
+	1.1.1.1,admin,pass,client_gateway,host_name,2015
+	2.2.2.2,admin,pass,client_gateway,host_name,2012
+	3.3.3.3,admin,pass,client_gateway,host_name,2010
+	
+Return down to add new padding when adding a host in to be remotely backed up with ftp/ssh.
+
       
-The format for the above tuple items is as follows:
+The tuple items are automatically parsed from the reader + list to the following tuple format as follows:
 
       ('IP Address','username', 'password', 'host-description', 'System Name')
       
